@@ -89,13 +89,13 @@ func addItem(c echo.Context) error {
 	fileName_hash := sha_256([]byte(fileName))
 
 	// 保存用のディレクトリを作成する（存在していなければ、保存用のディレクトリを新規作成）
-	err = os.MkdirAll("./images", os.ModePerm)
-	if err != nil {
-		fmt.Println("Mkdir error")
-	}
+	//err = os.MkdirAll("./images", os.ModePerm)
+	//if err != nil {
+	//	fmt.Println("Mkdir error")
+	//}
 
 	// 保存用のファイルを作成する
-	dst, err := os.Create("./images/"+fmt.Sprintf("%s.%s",string(fileName_hash),extension))
+	dst, err := os.Create("../images/"+fmt.Sprintf("%s.%s",string(fileName_hash),extension))
 	if err != nil {
 		fmt.Println("Mkfile error")
 		fmt.Println(err)
