@@ -57,29 +57,28 @@ func addItem(c echo.Context) error {
 
 	//ここからStep2
 	//jsonファイルの読み込み
-	raw, err := os.ReadFile("./items.json")
+	raw, err := os.ReadFile("./app/items.json")
 	//エラーハンドリング
 	if err != nil {
-        fmt.Println("Read error")
+        return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
     }
 	//jsonに対応した構造体のインスタンスを生成
 	var itemsWrapper ItemsWrapper
 	//jsonをデコード
 	if err := json.Unmarshal(raw, &itemsWrapper); err != nil {
-		fmt.Println("Decode error")
-		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 
 	//ここから画像
 	// フォームのファイルを取得
 	file, err := c.FormFile("image")
 	if err != nil {
-		fmt.Println("Image Get error")
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 	//ファイルを開いて内容をsrcに代入
 	src, err := file.Open()
 	if err != nil {
-		fmt.Println("Image Open error")
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 	defer src.Close()
 
@@ -88,28 +87,21 @@ func addItem(c echo.Context) error {
 	extension := fileModel[1]
 	fileName_hash := sha_256([]byte(fileName))
 
-	// 保存用のディレクトリを作成する（存在していなければ、保存用のディレクトリを新規作成）
-	//err = os.MkdirAll("./images", os.ModePerm)
-	//if err != nil {
-	//	fmt.Println("Mkdir error")
-	//}
-
 	// 保存用のファイルを作成する
-	dst, err := os.Create("../images/"+fmt.Sprintf("%s.%s",string(fileName_hash),extension))
+	dst, err := os.Create("./images/"+fmt.Sprintf("%s.%s",string(fileName_hash),extension))
 	if err != nil {
-		fmt.Println("Mkfile error")
-		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 	defer dst.Close()
 
 	// アップロードされたファイルの内容を保存用のファイルにコピーする
 	_, err = io.Copy(dst, src)
 	if err != nil {
-		fmt.Println("Copyfile error")
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
-	fmt.Println("アップロード成功!")
+	c.Logger().Infof("アップロード成功!")
 	// ここまで画像
-	var imageName string = fileName_hash + "." + extension
+	imageName := fileName_hash + "." + extension
 	//新しい商品（ジャンル）の読み取り
 	category := c.FormValue("category")
 	//新しい商品を構造体に
@@ -120,11 +112,11 @@ func addItem(c echo.Context) error {
 	//商品一覧配列をjson化
 	ans, err := json.Marshal(itemsWrapper)
 	if err != nil {
-		fmt.Println("Encode error")
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 	os.WriteFile("./items.json", []byte(ans), 0664)
 	if err != nil {
-		fmt.Println("WriteFile error")
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -132,15 +124,14 @@ func addItem(c echo.Context) error {
 
 func showItem (c echo.Context) error {
 	//jsonファイルの読み込み
-	raw, err := os.ReadFile("./items.json")
+	raw, err := os.ReadFile("./app/items.json")
 	//エラーハンドリング
 	if err != nil {
-        fmt.Println("Road error")
+        return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
     }
 	var itemsWrapper ItemsWrapper
 	if err := json.Unmarshal(raw, &itemsWrapper); err != nil {
-		fmt.Println("Decode error")
-		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, itemsWrapper)
 }
@@ -164,29 +155,31 @@ func getImg(c echo.Context) error {
 }
 
 func getItems(c echo.Context) error {
-	image_id := c.Param("image_id")
+	item_id := c.Param("item_id")
 
 	//jsonファイルの読み込み
-	raw, err := os.ReadFile("./items.json")
+	raw, err := os.ReadFile("./app/items.json")
 	//エラーハンドリング
 	if err != nil {
-        fmt.Println("Road error")
+        return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
     }
 	//jsonに対応した構造体のインスタンスを生成
 	var itemsWrapper ItemsWrapper
 	//jsonをデコード
 	if err := json.Unmarshal(raw, &itemsWrapper); err != nil {
-		fmt.Println("Decode error")
-		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
 
 	items := itemsWrapper.Items
-	index, _:= strconv.Atoi(image_id)
+	index, err := strconv.Atoi(item_id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
+	}
 	if len(items) < index {
-		message := fmt.Sprintf("noImage")
+		message := fmt.Sprintf("")
 		res := Response{Message: message}
 		return c.JSON(http.StatusOK, res)
-	}else {
+	} else {
 		item := items[index]
 		return c.JSON(http.StatusOK, item)
 	}
@@ -213,7 +206,7 @@ func main() {
 	e.GET("/", root)
 	e.GET("/items", showItem)
 	e.POST("/items", addItem)
-	e.GET("/items/:image_id", getItems)
+	e.GET("/items/:item_id", getItems)
 	e.GET("/image/:imageFilename", getImg)
 
 	// Start server
