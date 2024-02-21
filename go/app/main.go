@@ -114,7 +114,7 @@ func addItem(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
-	os.WriteFile("./items.json", []byte(ans), 0664)
+	os.WriteFile("./app/items.json", []byte(ans), 0664)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
 	}
