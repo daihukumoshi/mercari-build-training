@@ -93,7 +93,7 @@ func addItem(c echo.Context) error {
 
 
 	//dbに保存
-	db, err := sql.Open("sqlite3", "../db/mercari.sqlite3") 
+	db, err := sql.Open("sqlite3", "./db/mercari.sqlite3") 
 	if err != nil {
         return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
     }
@@ -134,7 +134,7 @@ func addItem(c echo.Context) error {
 }
 
 func showItem(c echo.Context) error {
-	db, err := sql.Open("sqlite3", "../db/mercari.sqlite3") 
+	db, err := sql.Open("sqlite3", "./db/mercari.sqlite3") 
 	if err != nil {
         return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
     }
@@ -171,7 +171,7 @@ func showItem(c echo.Context) error {
 func searchItem(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 
-	db, err := sql.Open("sqlite3", "../db/mercari.sqlite3") 
+	db, err := sql.Open("sqlite3", "./db/mercari.sqlite3") 
 	if err != nil {
         return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
     }
@@ -224,7 +224,7 @@ func getImg(c echo.Context) error {
 }
 
 func getItems(c echo.Context) error {
-	db, err := sql.Open("sqlite3", "../db/mercari.sqlite3") 
+	db, err := sql.Open("sqlite3", "./db/mercari.sqlite3") 
 	if err != nil {
         return c.JSON(http.StatusInternalServerError, Response{Message: err.Error()})
     }
