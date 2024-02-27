@@ -54,7 +54,7 @@ func handleError(c echo.Context, err error) error {
 }
 
 func openDatabase() (*sql.DB, error) {
-    return sql.Open("sqlite3", "../db/mercari.sqlite3")
+    return sql.Open("sqlite3", "./db/mercari.sqlite3")
 }
 
 func addItem(c echo.Context) error {
