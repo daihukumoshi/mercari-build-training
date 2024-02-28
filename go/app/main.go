@@ -184,7 +184,7 @@ func searchItem(c echo.Context) error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT * FROM items INNER JOIN categories ON items.category_id = categories.id WHERE items.name LIKE ?", "%"+keyword+"%")
+	rows, err := db.Query("SELECT items.name, items.image_name, categories.name FROM items INNER JOIN categories ON items.category_id = categories.id WHERE items.name LIKE ?", "%"+keyword+"%")
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -193,18 +193,14 @@ func searchItem(c echo.Context) error {
 	var itemsWrapper ItemsWrapper
 
 	for rows.Next() {
-		var itemId int
 		var itemName string
-		var category_id int
 		var image_name string
-		var categoryID int
 		var categoryName string
 
-		err = rows.Scan(&itemId, &itemName, &category_id, &image_name, &categoryID, &categoryName)
+		err = rows.Scan(&itemName, &image_name, &categoryName)
 		if err != nil {
 			return handleError(c, err)
 		}
-
 		newItem := Item{Name: itemName, Category: categoryName, Imagename: image_name}
 		itemsWrapper.Items = append(itemsWrapper.Items, newItem)
 	}
@@ -241,7 +237,7 @@ func getItems(c echo.Context) error {
 		return handleError(c, err)
 	}
 
-	rows, err := db.Query("SELECT * FROM items INNER JOIN categories ON items.category_id = categories.id WHERE items.id=?", itemID)
+	rows, err := db.Query("SELECT items.name, items.image_name, categories.name FROM items INNER JOIN categories ON items.category_id = categories.id WHERE items.id=?", itemID)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -250,14 +246,11 @@ func getItems(c echo.Context) error {
 	var itemsWrapper ItemsWrapper
 
 	for rows.Next() {
-		var itemId int
 		var itemName string
-		var category_id int
 		var image_name string
-		var categoryID int
 		var categoryName string
 
-		err = rows.Scan(&itemId, &itemName, &category_id, &image_name, &categoryID, &categoryName)
+		err = rows.Scan(&itemName, &image_name, &categoryName)
 		if err != nil {
 			return handleError(c, err)
 		}
