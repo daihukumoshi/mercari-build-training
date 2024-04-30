@@ -4,3 +4,8 @@ name TEXT,
 category_id INTEGER,
 image_name TEXT
 );
+
+CREATE TABLE categories (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
