@@ -1,7 +1,8 @@
 # ベースイメージの指定
 FROM golang:alpine
 
-RUN apk add --no-cache gcc musl-dev
+#RUN apk add --no-cache gcc musl-dev
+RUN apk update && apk add --no-cache gcc musl-dev sqlite
 
 # 作業ディレクトリの設定
 WORKDIR /app
@@ -16,8 +17,13 @@ COPY go.sum .
 # 依存関係をダウンロード
 RUN go mod download
 
-# データベースファイルのコピー
-COPY db/mercari.sqlite3 ./db/
+
+# スキーマファイルをコピー
+COPY /db/items.db ./db/
+
+# データベースの作成
+RUN sqlite3 /app/db/mercari.sqlite3 < /app/db/items.db
+
 
 # Goのソースファイルをコピー
 COPY ./app/main.go .
