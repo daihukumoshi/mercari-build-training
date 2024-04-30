@@ -16,8 +16,13 @@ COPY go.sum .
 # 依存関係をダウンロード
 RUN go mod download
 
-# データベースファイルのコピー
-COPY ./db/mercari.sqlite3 ./db/
+
+# スキーマファイルをコピー
+COPY /db/items.db ./db/
+
+# データベースの作成
+RUN sqlite3 /app/db/mercari.sqlite3 < /app/db/items.db
+
 
 # Goのソースファイルをコピー
 COPY ./app/main.go .
